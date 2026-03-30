@@ -7,12 +7,7 @@ import fr.simplon.infrastructure.services.errors.LifeCycleErrorStrategy;
 public class App {
 
     public static void main(String[] args) {
-
-        TomcatService tomcatService = new TomcatServiceImpl(
-                new LifeCycleErrorStrategy()
-        );
-
+        TomcatService tomcatService = new TomcatServiceImpl(new LifeCycleErrorStrategy());
         tomcatService.setUpTomcat();
-
     }
 }

@@ -18,8 +18,11 @@ public class TomcatServiceImpl implements TomcatService {
     private Tomcat tomcat;
     private File publicFolder = new File("src/main/webapp/");
     private Context ctx;
-
     private ErrorHandlingStrategy errorStrategy;
+
+    public TomcatServiceImpl(ErrorHandlingStrategy errorStrategy) {
+        this.errorStrategy = errorStrategy;
+    }
 
     @Override
     public void verifyPublicFolderExist(File publicFolder) {
