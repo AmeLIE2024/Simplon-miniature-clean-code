@@ -1,0 +1,1 @@
+rootProject.name = "Simplon-miniature-clean-code"
