@@ -1,4 +1,4 @@
-package org.miniature.domain.models;
+package fr.simplon.domain.models;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class Post {
+public class Post implements Comparable<Post> {
     private static long nbPosts = 0;
     private List<Map<String, Object>> comments = new ArrayList<>();
 

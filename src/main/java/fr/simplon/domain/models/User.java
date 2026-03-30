@@ -1,4 +1,4 @@
-package org.miniature.domain.models;
+package fr.simplon.domain.models;
 
 import java.util.ArrayList;
 import java.util.List;

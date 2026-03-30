@@ -1,4 +1,4 @@
-package org.miniature;
+package fr.simplon;
 
 import java.io.File;
 
@@ -30,7 +30,7 @@ public class App {
         File classFolder = new File("build/classes/java/main");
         WebResourceRoot resources = new StandardRoot(ctx);
         resources.addPreResources(
-                new DirResourceSet(resources, "/WEB-INF/classes", classFolder.getAbsolutePath(), "/"));
+                new DirResourceSet(resources, "/WEB-INF/classes", classFolder.getAbsolutePath(), "/vues/"));
         ctx.setResources(resources);
 
         try {

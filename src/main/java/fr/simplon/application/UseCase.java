@@ -1,4 +1,4 @@
-package org.miniature.application;
+package fr.simplon.application;
 
 public class UseCase {
 }
