@@ -2,6 +2,8 @@ package fr.simplon.infrastructure.services;
 
 import java.io.File;
 
+import fr.simplon.domain.gateway.ErrorHandlingStrategy;
+import fr.simplon.infrastructure.services.errors.LifeCycleErrorStrategy;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.WebResourceRoot;
@@ -16,6 +18,8 @@ public class TomcatServiceImpl implements TomcatService {
     private Tomcat tomcat;
     private File publicFolder = new File("src/main/webapp/");
     private Context ctx;
+
+    private ErrorHandlingStrategy errorStrategy;
 
     @Override
     public void verifyPublicFolderExist(File publicFolder) {
@@ -38,7 +42,7 @@ public class TomcatServiceImpl implements TomcatService {
             this.tomcat.start();
             this.tomcat.getServer().await();
         } catch (LifecycleException e) {
-            e.printStackTrace();
+            errorStrategy.handleError(e);
         }
     }
 

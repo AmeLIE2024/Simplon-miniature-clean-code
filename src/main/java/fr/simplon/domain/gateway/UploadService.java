@@ -1,4 +1,4 @@
-package fr.simplon.infrastructure.services;
+package fr.simplon.domain.gateway;
 
 import java.io.File;
 import java.io.FileInputStream;
