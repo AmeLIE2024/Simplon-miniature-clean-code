@@ -8,8 +8,6 @@ public interface TomcatService {
 
     public void setUpTomcat();
 
-    public void verifyPublicFolderExist(File publicFolder);
-
     public void getContext(Tomcat tomcat);
 
     public void readClasses();
