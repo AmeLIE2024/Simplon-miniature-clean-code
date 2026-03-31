@@ -6,6 +6,8 @@ build/
 .kotlin
 
 app/tomcat.8080/*
+work/*
+tomcat.8080/*
 
 ### IntelliJ IDEA ###
 .idea/*
