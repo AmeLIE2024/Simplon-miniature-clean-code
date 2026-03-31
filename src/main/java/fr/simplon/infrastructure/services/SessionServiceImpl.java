@@ -35,7 +35,7 @@ public class SessionServiceImpl implements SessionService {
     public User getCurrentUser(HttpSession session, List<User> users) {
 
         String username = getLoggedUsername(session);
-        User currentUser = userRepository.findByUserName(username, users);
+        User currentUser = userRepository.findByUserName(username);
 
         if (currentUser != null) {
             return currentUser;

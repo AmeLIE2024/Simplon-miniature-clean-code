@@ -1,5 +1,8 @@
 package fr.simplon.infrastructure.controllers;
 
+import fr.simplon.domain.gateway.PostService;
+import fr.simplon.domain.repository.UserRepositoryInterface;
+import fr.simplon.infrastructure.repository.UserRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -28,6 +31,8 @@ public class PostController extends HttpServlet {
     private ImageExtension imageExtension;
     private VideoExtension videoExtension;
     private SessionService sessionService;
+    private UserRepositoryInterface userRepository;
+
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -41,9 +46,7 @@ public class PostController extends HttpServlet {
             List<User> users = (List<User>) getServletContext().getAttribute("users");
 
         }
-
-        req.setAttribute("feedType", feedType);
-        req.setAttribute("postList", postsToShow);
+        req.setAttribute("postList", postList);
         req.getRequestDispatcher("/feeds.jsp").forward(req, resp);
 
     }
@@ -62,7 +65,7 @@ public class PostController extends HttpServlet {
 
         String username = (String) session.getAttribute("loggedUser");
         List<User> users = (List<User>) getServletContext().getAttribute("users");
-        User owner = findByUserName(username, users);
+        User owner = userRepository.findByUserName(username);
 
         String newPost = req.getParameter("newPost");
         String newComment = req.getParameter("newComment");
@@ -71,7 +74,7 @@ public class PostController extends HttpServlet {
         String followUsername = req.getParameter("follow");
 
         if (followUsername != null && owner != null) {
-            User userToFollow = findByUserName(followUsername, users);
+            User userToFollow = userRepository.findByUserName(followUsername);
             if (userToFollow != null) {
                 owner.follow(userToFollow.getId());
             }
@@ -132,7 +135,7 @@ public class PostController extends HttpServlet {
         else if (buttonLike != null) {
             try {
                 long likePostId = Long.parseLong(buttonLike);
-                User currentUser = findByUserName(username, users);
+                User currentUser = userRepository.findByUserName(username);
 
                 if (currentUser != null) {
                     for (Post post : postList) {
