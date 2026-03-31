@@ -1,9 +1,9 @@
-package fr.simplon.infrastructure.services;
+package fr.simplon.infrastructure.services.tomcat;
 
 import java.io.File;
 
 import fr.simplon.domain.gateway.ErrorHandlingStrategy;
-import fr.simplon.infrastructure.services.errors.LifeCycleErrorStrategy;
+import fr.simplon.infrastructure.strategies.logs.LogStrategyImpl;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.WebResourceRoot;
@@ -19,15 +19,18 @@ public class TomcatServiceImpl implements TomcatService {
     private File publicFolder = new File("src/main/webapp/");
     private Context ctx;
     private ErrorHandlingStrategy errorStrategy;
+    private LogStrategyImpl logTomcatStrategy;
 
-    public TomcatServiceImpl(ErrorHandlingStrategy errorStrategy) {
+    public TomcatServiceImpl(LogStrategyImpl logTomcatStrategy, ErrorHandlingStrategy errorStrategy) {
         this.errorStrategy = errorStrategy;
+        this.logTomcatStrategy = logTomcatStrategy;
     }
 
     @Override
     public void verifyPublicFolderExist(File publicFolder) {
         if (!publicFolder.exists()) {
             publicFolder.mkdirs();
+            logTomcatStrategy.logMessage("Public folder already exists!");
         }
     }
 

@@ -1,8 +1,9 @@
-package fr.simplon.infrastructure.services.errors;
+package fr.simplon.infrastructure.strategies.errors;
 
 import fr.simplon.domain.gateway.ErrorHandlingStrategy;
 
-public class LifeCycleErrorStrategy implements ErrorHandlingStrategy {
+public class ErrorHandlingStrategyImpl implements ErrorHandlingStrategy {
+
 
 
     @Override
