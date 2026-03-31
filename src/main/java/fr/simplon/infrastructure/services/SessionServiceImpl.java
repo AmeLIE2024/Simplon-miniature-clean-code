@@ -11,6 +11,9 @@ public class SessionServiceImpl implements SessionService {
 
     private UserRepositoryInterface userRepository;
 
+    public SessionServiceImpl() {
+    }
+
     public SessionServiceImpl(UserRepositoryInterface userRepository) {
         this.userRepository = userRepository;
     }

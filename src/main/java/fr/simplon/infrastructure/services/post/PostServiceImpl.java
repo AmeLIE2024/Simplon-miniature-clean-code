@@ -24,6 +24,9 @@ public class PostServiceImpl implements PostService {
 
     private List<Post> postList = new ArrayList<>();
 
+    public PostServiceImpl() {
+    }
+
     public PostServiceImpl(PostRepository postRepository) {
         this.postRepository = postRepository;
     }
