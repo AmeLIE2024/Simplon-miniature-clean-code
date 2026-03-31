@@ -2,80 +2,54 @@ package fr.simplon.domain.models;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-public class Post implements Comparable<Post> {
-    private static long nbPosts = 0;
-    private List<Map<String, Object>> comments = new ArrayList<>();
+public class Post {
 
     private long id;
-    private long owner;
+    private long ownerId;
     private String ownerUsername;
-    private long parent;
+    private long parentId;
     private String content;
     private LocalDateTime createdAt;
-    private boolean isDraft = false;
-
+    private boolean isDraft;
     private String mediaUrl;
-    private AttachmentType attachmentType = AttachmentType.NONE;
+    private AttachmentType attachmentType;
     private Set<Long> likedByUserIds = new HashSet<>();
+    private List<Comment> comments = new ArrayList<>();
 
-    public Post(long id, long owner, String ownerUsername, long parent, String content) {
-        this.id = ++nbPosts;
-        this.owner = owner;
-        this.ownerUsername = ownerUsername;
-        this.parent = parent;
-        this.content = content;
-        this.createdAt = LocalDateTime.now();
-    }
-
-    public Post(long owner, long parent, String content, LocalDateTime createdAt, boolean isDraft) {
-        this.id = ++nbPosts;
-        this.owner = owner;
-        this.parent = parent;
-        this.content = content;
-        this.createdAt = LocalDateTime.now();
-        this.isDraft = isDraft;
-    }
-
-    public Post(long id, long owner, String ownerUsername, long parent, String content, String mediaUrl,
+    public Post(long ownerId, String ownerUsername, long parentId, String content, String mediaUrl,
             AttachmentType attachmentType) {
-        this.id = ++nbPosts;
-        this.owner = owner;
+        this.ownerId = ownerId;
         this.ownerUsername = ownerUsername;
-        this.parent = parent;
+        this.parentId = parentId;
         this.content = content;
         this.createdAt = LocalDateTime.now();
+        this.isDraft = false;
         this.mediaUrl = mediaUrl;
         this.attachmentType = attachmentType != null ? attachmentType : AttachmentType.NONE;
-    }
-
-    public static long getNbPosts() {
-        return nbPosts;
-    }
-
-    public List<Map<String, Object>> getComments() {
-        return comments;
     }
 
     public long getId() {
         return id;
     }
 
-    public long getOwner() {
-        return owner;
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public long getOwnerId() {
+        return ownerId;
     }
 
     public String getOwnerUsername() {
         return ownerUsername;
     }
 
-    public long getParent() {
-        return parent;
+    public long getParentId() {
+        return parentId;
     }
 
     public String getContent() {
@@ -98,12 +72,12 @@ public class Post implements Comparable<Post> {
         return attachmentType;
     }
 
-    public void toggleLike(long userId) {
-        if (likedByUserIds.contains(userId)) {
-            likedByUserIds.remove(userId);
-        } else {
-            likedByUserIds.add(userId);
-        }
+    public Set<Long> getLikedByUserIds() {
+        return likedByUserIds;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
     }
 
     public boolean hasMedia() {
@@ -111,17 +85,5 @@ public class Post implements Comparable<Post> {
                 && attachmentType != AttachmentType.NONE
                 && mediaUrl != null
                 && !mediaUrl.isBlank();
-    }
-
-    public int compareTo(Post post) {
-        return getCreatedAt().compareTo(post.getCreatedAt());
-    }
-
-    public void addComment(long userId, String username, String content) {
-        Map<String, Object> comment = new HashMap<>();
-        comment.put("username", username);
-        comment.put("content", content);
-        comment.put("createdAt", LocalDateTime.now());
-        comments.add(comment);
     }
 }

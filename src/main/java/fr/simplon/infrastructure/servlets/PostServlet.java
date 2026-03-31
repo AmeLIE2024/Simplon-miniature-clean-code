@@ -1,53 +1,105 @@
 package fr.simplon.infrastructure.servlets;
 
-import java.io.IOException;
-
-import fr.simplon.domain.gateway.ErrorHandlingStrategy;
 import fr.simplon.domain.gateway.FileStorageService;
-import fr.simplon.domain.gateway.PostService;
-import fr.simplon.domain.repository.UserRepositoryInterface;
-import fr.simplon.infrastructure.repository.UserRepository;
-import fr.simplon.infrastructure.services.FileStorageServiceImpl;
-import fr.simplon.infrastructure.services.post.PostServiceImpl;
-import fr.simplon.infrastructure.strategies.errors.ErrorHandlingStrategyImpl;
+import fr.simplon.domain.gateway.SessionService;
+import fr.simplon.domain.models.AttachmentType;
+import fr.simplon.domain.models.User;
+import fr.simplon.infrastructure.controllers.PostController;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 
-@WebServlet("/post/*")
+import java.io.IOException;
+import java.util.List;
+
+@WebServlet("/feeds")
 public class PostServlet extends HttpServlet {
-    private PostService postService;
-    private UserRepositoryInterface userRepository;
-    private ErrorHandlingStrategy errorHandlingStrategy;
-    private FileStorageService fileStorageService;
 
-    public PostServlet(PostService postService) {
-        this.postService = new PostServiceImpl();
-        this.userRepository = new UserRepository();
-        this.errorHandlingStrategy = new ErrorHandlingStrategyImpl();
-        this.fileStorageService = new FileStorageServiceImpl();
+    private final PostController postController;
+    private final SessionService sessionService;
+    private final FileStorageService fileStorageService;
+
+    public PostServlet(PostController postController, SessionService sessionService,
+            FileStorageService fileStorageService) {
+        this.postController = postController;
+        this.sessionService = sessionService;
+        this.fileStorageService = fileStorageService;
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String action = req.getPathInfo();
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
+        resp.setCharacterEncoding("UTF-8");
+
+        if (!sessionService.isUserLoggedIn(req.getSession(false))) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
+
+        User owner = sessionService.getCurrentUser(req.getSession(false), getUsers());
+        String action = req.getParameter("action");
+
+        if (action == null) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
 
         switch (action) {
-            case "/like" -> handleLike(req, resp);
-            case "/comment" -> handleNewComment(req, resp);
-            case "/follow" -> handleFollowRequest(req, resp);
-            case "/new" -> handleNewPost(req, resp);
-            default -> resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            case "like" -> postController.handleLike(
+                    Long.parseLong(req.getParameter("postId")), owner);
+            case "comment" -> postController.handleNewComment(
+                    Long.parseLong(req.getParameter("postId")),
+                    req.getParameter("comment"), owner);
+            case "follow" -> postController.handleFollowRequest(
+                    Long.parseLong(req.getParameter("targetUserId")), owner);
+            case "new" -> {
+                String content = req.getParameter("content");
+                String externalUrl = req.getParameter("externalUrl");
+                String mediaUrl = null;
+                AttachmentType attachmentType = AttachmentType.NONE;
+
+                if (externalUrl != null && !externalUrl.isBlank() && externalUrl.startsWith("https://")) {
+                    mediaUrl = externalUrl;
+                    attachmentType = AttachmentType.EXTERNAL;
+                }
+
+                Part filePart = req.getPart("mediaFile");
+                if (filePart != null && filePart.getSize() > 0) {
+                    mediaUrl = fileStorageService.saveFile(
+                            filePart.getSubmittedFileName(),
+                            filePart.getInputStream());
+                    attachmentType = AttachmentType.fromExtension(
+                            filePart.getSubmittedFileName());
+                }
+
+                postController.handleNewPost(content, mediaUrl, attachmentType, owner);
+            }
+            default -> resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
     }
 
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
+        resp.setContentType("text/html; charset=UTF-8");
 
+        User currentUser = sessionService.getCurrentUser(req.getSession(false), getUsers());
 
+        if (currentUser != null) {
+            req.setAttribute("currentUserId", currentUser.getId());
+        }
 
+        String feedType = req.getParameter("type") != null ? req.getParameter("type") : "recommandations";
+        req.setAttribute("feedType", feedType);
+        req.getRequestDispatcher("/vues/feeds.jsp").forward(req, resp);
+    }
 
-
-
-
+    private List<User> getUsers() {
+        return (List<User>) getServletContext().getAttribute("users");
+    }
 }

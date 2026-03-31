@@ -1,79 +1,30 @@
 package fr.simplon.infrastructure.controllers;
 
 import fr.simplon.domain.gateway.PostService;
-import fr.simplon.domain.repository.UserRepositoryInterface;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.MultipartConfig;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-
-import java.io.IOException;
-import java.util.*;
-
-import fr.simplon.domain.gateway.SessionService;
-import fr.simplon.domain.models.ImageExtension;
-import fr.simplon.domain.models.Post;
+import fr.simplon.domain.models.AttachmentType;
 import fr.simplon.domain.models.User;
-import fr.simplon.domain.models.VideoExtension;
 
-@MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 5 * 1024 * 1024, maxRequestSize = 10 * 1024 * 1024)
-@WebServlet("/feeds")
-public class PostController extends HttpServlet {
+public class PostController {
 
-    private List<Post> postList = new ArrayList<>();
-    private ImageExtension imageExtension;
-    private VideoExtension videoExtension;
+    private final PostService postService;
 
-    private SessionService sessionService;
-    private PostService postService;
-    private UserRepositoryInterface userRepository;
-
-    public PostController(SessionService sessionService, PostService postService,
-            UserRepositoryInterface userRepository) {
-        this.sessionService = sessionService;
+    public PostController(PostService postService) {
         this.postService = postService;
-        this.userRepository = userRepository;
     }
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setCharacterEncoding("UTF-8");
-        resp.setContentType("text/html; charset=UTF-8");
-
-        HttpSession session = req.getSession(false);
-        User currentUser = sessionService.getCurrentUser(session, getUsers());
-
-        if (currentUser != null) {
-            req.setAttribute("currentUserId", currentUser.getId());
-        }
-
-        String feedType = req.getParameter("type") != null ? req.getParameter("type") : "recommandations";
-        List<Post> postToShow = postService.getPostsByFeedType(feedType, currentUser, postList);
-
-        req.setAttribute("feedType", feedType);
-        req.setAttribute("postList", postToShow);
-        req.getRequestDispatcher("/vues/feeds.jsp").forward(req, resp);
+    public void handleNewPost(String content, String mediaUrl, AttachmentType attachmentType, User owner) {
+        postService.createPost(content, mediaUrl, owner, attachmentType);
     }
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setCharacterEncoding("UTF-8");
-        resp.setCharacterEncoding("UTF-8");
-
-        if (!sessionService.isUserLoggedIn(req.getSession(false))) {
-            resp.sendRedirect(req.getContextPath() + "/login");
-            return;
-        }
-
-        User owner = sessionService.getCurrentUser(req.getSession(false), getUsers());
-
+    public void handleLike(long postId, User owner) {
+        postService.toggleLike(postId, owner.getId());
     }
 
-    private List<User> getUsers() {
-        return (List<User>) getServletContext().getAttribute("users");
+    public void handleNewComment(long postId, String comment, User owner) {
+        postService.addComment(postId, owner, comment);
     }
 
+    public void handleFollowRequest(long targetUserId, User owner) {
+        postService.followUser(targetUserId, owner);
+    }
 }

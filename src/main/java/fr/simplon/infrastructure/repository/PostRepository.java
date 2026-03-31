@@ -57,7 +57,7 @@ public class PostRepository implements PostRepositoryInterface {
     @Override
     public void save(Post post) {
         postList.add(post);
-        Collections.sort(postList, Comparator.reverseOrder());
+        postList.sort(Comparator.comparing(Post::getCreatedAt).reversed());
     }
 
     @Override
