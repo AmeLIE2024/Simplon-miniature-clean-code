@@ -4,14 +4,14 @@ import java.util.List;
 
 import fr.simplon.domain.gateway.SessionService;
 import fr.simplon.domain.models.User;
-import fr.simplon.domain.repository.UserRepository;
+import fr.simplon.domain.repository.UserRepositoryInterface;
 import jakarta.servlet.http.HttpSession;
 
 public class SessionServiceImpl implements SessionService {
 
-    private UserRepository userRepository;
+    private UserRepositoryInterface userRepository;
 
-    public SessionServiceImpl(UserRepository userRepository) {
+    public SessionServiceImpl(UserRepositoryInterface userRepository) {
         this.userRepository = userRepository;
     }
 

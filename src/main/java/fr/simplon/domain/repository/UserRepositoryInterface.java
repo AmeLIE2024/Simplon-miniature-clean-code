@@ -4,6 +4,6 @@ import java.util.List;
 
 import fr.simplon.domain.models.User;
 
-public interface UserRepository {
-    public User findByUserName(String username, List<User> users);
+public interface UserRepositoryInterface {
+    User findByUserName(String username, List<User> users);
 }

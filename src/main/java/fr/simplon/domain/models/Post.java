@@ -19,10 +19,10 @@ public class Post implements Comparable<Post> {
     private String content;
     private LocalDateTime createdAt;
     private boolean isDraft = false;
-    private Set<Long> likedByUserIds = new HashSet<>();
 
     private String mediaUrl;
     private AttachmentType attachmentType = AttachmentType.NONE;
+    private Set<Long> likedByUserIds = new HashSet<>();
 
     public Post(long id, long owner, String ownerUsername, long parent, String content) {
         this.id = ++nbPosts;
@@ -90,24 +90,12 @@ public class Post implements Comparable<Post> {
         return isDraft;
     }
 
-    public Set<Long> getLikedByUserIds() {
-        return likedByUserIds;
-    }
-
     public String getMediaUrl() {
         return mediaUrl;
     }
 
     public AttachmentType getAttachmentType() {
         return attachmentType;
-    }
-
-    public int getLikeCount() {
-        return likedByUserIds.size();
-    }
-
-    public boolean isLikedBy(long userId) {
-        return likedByUserIds.contains(userId);
     }
 
     public void toggleLike(long userId) {

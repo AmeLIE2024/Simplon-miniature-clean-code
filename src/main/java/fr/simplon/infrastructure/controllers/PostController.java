@@ -36,12 +36,9 @@ public class PostController extends HttpServlet {
 
         HttpSession session = req.getSession(false);
 
-        List<Post> postsToShow = postList;
-
         if (session != null && session.getAttribute("loggedUser") != null) {
             String username = (String) session.getAttribute("loggedUser");
             List<User> users = (List<User>) getServletContext().getAttribute("users");
-            User currentUser = findByUserName(username, users);
 
         }
 
@@ -116,15 +113,6 @@ public class PostController extends HttpServlet {
                     return;
                 }
 
-                postList.add(new Post(
-                        System.currentTimeMillis(),
-                        owner.getId(),
-                        owner.getUsername(),
-                        0L,
-                        newPost.trim(),
-                        mediaUrl,
-                        attachmentType));
-                Collections.sort(postList, Comparator.reverseOrder());
             }
         } else if (newComment != null && !newComment.trim().isEmpty() && postIdStr != null) {
             try {

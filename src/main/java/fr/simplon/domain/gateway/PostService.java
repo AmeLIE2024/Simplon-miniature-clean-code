@@ -8,4 +8,10 @@ public interface PostService {
     void checkExtensions();
 
     List<Post> getPostsByFeedType(String feedType, User currentUser, List<Post> allPosts);
+
+    void createPost(Post post);
+
+    void toggleLike(long postId, User currentUser);
+
+    void addComment(long postId, User author, String content);
 }
