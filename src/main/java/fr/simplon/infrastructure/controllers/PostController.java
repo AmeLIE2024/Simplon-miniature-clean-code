@@ -13,17 +13,21 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+import fr.simplon.domain.gateway.SessionService;
 import fr.simplon.domain.models.AttachmentType;
+import fr.simplon.domain.models.ImageExtension;
 import fr.simplon.domain.models.Post;
 import fr.simplon.domain.models.User;
+import fr.simplon.domain.models.VideoExtension;
 
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 5 * 1024 * 1024, maxRequestSize = 10 * 1024 * 1024)
 @WebServlet("/feeds")
 public class PostController extends HttpServlet {
 
     private List<Post> postList = new ArrayList<>();
-    private static final Set<String> AUTHORIZED_IMAGE_EXTENSIONS = Set.of("jpg", "jpeg", "png", "gif", "webp");
-    private static final Set<String> AUTHORIZED_VIDEO_EXTENSIONS = Set.of("mp4", "webm", "wav");
+    private ImageExtension imageExtension;
+    private VideoExtension videoExtension;
+    private SessionService sessionService;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -31,18 +35,6 @@ public class PostController extends HttpServlet {
         resp.setContentType("text/html; charset=UTF-8");
 
         HttpSession session = req.getSession(false);
-        if (session != null && session.getAttribute("loggedUser") != null) {
-            String username = (String) session.getAttribute("loggedUser");
-            List<User> users = (List<User>) getServletContext().getAttribute("users");
-            User currentUser = findByUserName(username, users);
-            if (currentUser != null) {
-                req.setAttribute("currentUserId", currentUser.getId());
-            }
-        }
-
-        String feedType = req.getParameter("type");
-        if (feedType == null)
-            feedType = "recommendations";
 
         List<Post> postsToShow = postList;
 
@@ -51,14 +43,6 @@ public class PostController extends HttpServlet {
             List<User> users = (List<User>) getServletContext().getAttribute("users");
             User currentUser = findByUserName(username, users);
 
-            if ("subscriptions".equals(feedType) && currentUser != null) {
-                postsToShow = new ArrayList<>();
-                for (Post post : postList) {
-                    if (currentUser.isFollowing(post.getOwner())) {
-                        postsToShow.add(post);
-                    }
-                }
-            }
         }
 
         req.setAttribute("feedType", feedType);
@@ -119,9 +103,11 @@ public class PostController extends HttpServlet {
                         if (savedUrl != null) {
                             mediaUrl = savedUrl;
                             String ext = savedUrl.substring(savedUrl.lastIndexOf('.') + 1).toLowerCase();
-                            attachmentType = AUTHORIZED_VIDEO_EXTENSIONS.contains(ext)
+
+                            attachmentType = imageExtension.equals(imageExtension)
                                     ? AttachmentType.VIDEO
                                     : AttachmentType.IMAGE;
+
                         }
                     }
                 } catch (Exception e) {
@@ -186,15 +172,6 @@ public class PostController extends HttpServlet {
         return null;
     }
 
-    private User findByUserName(String username, List<User> users) {
-        for (User user : users) {
-            if (user.getUsername().equals(username)) {
-                return user;
-            }
-        }
-        return null;
-    }
-
     private String savedUploadFile(Part filePart, HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String originalName = filePart.getSubmittedFileName();
 
@@ -206,9 +183,7 @@ public class PostController extends HttpServlet {
                 ? originalName.substring(originalName.lastIndexOf('.') + 1).toLowerCase()
                 : "";
 
-        if (!AUTHORIZED_IMAGE_EXTENSIONS.contains(extension) && !AUTHORIZED_VIDEO_EXTENSIONS.contains(extension)) {
-            return null;
-        }
+        sessionService.checkExtensions();
 
         String safeName = UUID.randomUUID().toString() + "." + extension;
         String uploadDir = getServletContext().getRealPath("/uploads");
