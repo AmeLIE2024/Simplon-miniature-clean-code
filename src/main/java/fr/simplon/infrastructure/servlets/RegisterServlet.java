@@ -6,7 +6,7 @@ import fr.simplon.application.usecase.LoginUseCase;
 import fr.simplon.application.usecase.RegisterUseCase;
 import fr.simplon.domain.gateway.services.AuthentificationService;
 import fr.simplon.domain.models.User;
-import fr.simplon.infrastructure.config.AppConfig;
+import fr.simplon.domain.repository.UserRepositoryInterface;
 import fr.simplon.infrastructure.repository.UserRepository;
 import fr.simplon.infrastructure.services.authentification.AuthentificationServiceImpl;
 import jakarta.servlet.ServletException;
@@ -18,13 +18,11 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
 
-    private RegisterUseCase registerUseCase;
     private AuthentificationService authService;
-    private UserRepository userRepository;
 
     @Override
     public void init() throws ServletException {
-        this.userRepository = AppConfig.getUserRepository();
+        UserRepositoryInterface userRepository = new UserRepository();
         LoginUseCase loginUseCase = new LoginUseCase(userRepository);
         RegisterUseCase registerUseCase = new RegisterUseCase(userRepository);
 

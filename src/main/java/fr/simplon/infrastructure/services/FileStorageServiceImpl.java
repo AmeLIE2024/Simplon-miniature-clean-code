@@ -8,13 +8,11 @@ import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 import fr.simplon.domain.gateway.services.FileStorageService;
-import fr.simplon.domain.gateway.services.PostService;
 
 public class FileStorageServiceImpl implements FileStorageService {
 
     private final String uploadDir;
     private final String contextPath;
-    private PostService postService;
 
     public FileStorageServiceImpl(String uploadDir, String contextPath) {
         this.uploadDir = uploadDir;
@@ -23,24 +21,27 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     @Override
     public String saveFile(String originalName, InputStream inputStream) throws IOException {
+
         if (originalName == null || originalName.isBlank()) {
             return null;
         }
+
         String extension = originalName.contains(".")
                 ? originalName.substring(originalName.lastIndexOf(".") + 1).toLowerCase()
                 : "";
-        if (!postService.checkExtension(extension)) {
-            return null;
-        }
 
-        String safeName = UUID.randomUUID().toString() + "." + extension;
+        String safeName = UUID.randomUUID() + "." + extension;
+
         File dir = new File(uploadDir);
+
         if (!dir.exists() && !dir.mkdirs()) {
-            throw new IOException("Impossible de créer le dossier d'upload" + uploadDir);
+            throw new IOException("Impossible de créer le dossier : " + uploadDir);
         }
 
-        Files.copy(inputStream, new File(dir, safeName).toPath(), StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(inputStream,
+                new File(dir, safeName).toPath(),
+                StandardCopyOption.REPLACE_EXISTING);
+
         return contextPath + "/uploads/" + safeName;
     }
-
 }

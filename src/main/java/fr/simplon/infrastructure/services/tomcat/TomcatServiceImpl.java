@@ -8,6 +8,7 @@ import fr.simplon.domain.gateway.services.SessionService;
 import fr.simplon.domain.gateway.services.TomcatService;
 import fr.simplon.domain.gateway.strategy.ErrorHandlingStrategy;
 import fr.simplon.infrastructure.repository.PostRepository;
+import fr.simplon.infrastructure.repository.UserRepository;
 import fr.simplon.infrastructure.services.FileStorageServiceImpl;
 import fr.simplon.infrastructure.services.SessionServiceImpl;
 import fr.simplon.infrastructure.services.post.PostServiceImpl;
@@ -65,15 +66,21 @@ public class TomcatServiceImpl implements TomcatService {
         this.ctx = tomcat.addWebapp("", publicFolder.getAbsolutePath());
         this.ctx.setReloadable(true);
 
-        PostService postService = new PostServiceImpl(new PostRepository());
-        SessionService sessionService = new SessionServiceImpl();
+        PostRepository postRepository = new PostRepository();
+        UserRepository userRepository = new UserRepository();
         FileStorageService fileStorageService = new FileStorageServiceImpl(
                 publicFolder.getAbsolutePath() + "/uploads",
-                "", postService);
+                "");
+        PostService postService = new PostServiceImpl(
+                postRepository,
+                fileStorageService);
+        SessionService sessionService = new SessionServiceImpl(userRepository);
 
-        PostServlet postServlet = new PostServlet(sessionService, fileStorageService, postService);
+        ctx.getServletContext().setAttribute("postService", postService);
+        ctx.getServletContext().setAttribute("sessionService", sessionService);
+        ctx.getServletContext().setAttribute("fileStorageService", fileStorageService);
 
-        Tomcat.addServlet(ctx, "postServlet", postServlet);
+        Tomcat.addServlet(ctx, "postServlet", new PostServlet());
         ctx.addServletMappingDecoded("/feeds", "postServlet");
     }
 
