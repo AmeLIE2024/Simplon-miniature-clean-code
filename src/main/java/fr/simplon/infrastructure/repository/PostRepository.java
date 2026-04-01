@@ -1,11 +1,8 @@
 package fr.simplon.infrastructure.repository;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import fr.simplon.domain.models.Post;
 import fr.simplon.domain.repository.PostRepositoryInterface;
@@ -13,7 +10,6 @@ import fr.simplon.domain.repository.PostRepositoryInterface;
 public class PostRepository implements PostRepositoryInterface {
 
     private List<Post> postList = new ArrayList<>();
-    private Set<Long> likedByUserIds = new HashSet<>();
 
     @Override
     public List<Post> findAllPosts() {
@@ -31,33 +27,18 @@ public class PostRepository implements PostRepositoryInterface {
     }
 
     @Override
-    public boolean isLikedBy(long userId) {
-        return likedByUserIds.contains(userId);
-    }
-
-    @Override
-    public int getLikeCount() {
-        return likedByUserIds.size();
-    }
-
-    @Override
-    public List<Long> getLikedByUserIds() {
-        return new ArrayList<>(likedByUserIds);
+    public void save(Post post) {
+        post.setId(postList.size() + 1L);
+        postList.add(post);
+        postList.sort(Comparator.comparing(Post::getCreatedAt).reversed());
     }
 
     @Override
     public void update(Post post) {
-        Post existingPost = findPostById(post.getId());
-
-        if (existingPost != null) {
-            postList.set(postList.indexOf(existingPost), post);
+        Post existing = findPostById(post.getId());
+        if (existing != null) {
+            postList.set(postList.indexOf(existing), post);
         }
-    }
-
-    @Override
-    public void save(Post post) {
-        postList.add(post);
-        postList.sort(Comparator.comparing(Post::getCreatedAt).reversed());
     }
 
     @Override

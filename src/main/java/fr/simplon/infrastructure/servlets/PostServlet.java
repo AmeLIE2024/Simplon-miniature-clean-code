@@ -6,7 +6,6 @@ import fr.simplon.domain.models.AttachmentType;
 import fr.simplon.domain.models.User;
 import fr.simplon.infrastructure.controllers.PostController;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,7 +14,6 @@ import jakarta.servlet.http.Part;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet("/feeds")
 public class PostServlet extends HttpServlet {
 
     private final PostController postController;
@@ -27,6 +25,44 @@ public class PostServlet extends HttpServlet {
         this.postController = postController;
         this.sessionService = sessionService;
         this.fileStorageService = fileStorageService;
+    }
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+
+        if (postController == null) {
+            throw new ServletException("[PostServlet] postController non injecté");
+        }
+        if (sessionService == null) {
+            throw new ServletException("[PostServlet] sessionService non injecté");
+        }
+        if (fileStorageService == null) {
+            throw new ServletException("[PostServlet] fileStorageService non injecté");
+        }
+        System.out.println("[PostServlet] init() OK - toutes les dépendances sont injectées");
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
+        resp.setContentType("text/html; charset=UTF-8");
+
+        if (!sessionService.isUserLoggedIn(req.getSession(false))) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
+
+        User currentUser = sessionService.getCurrentUser(req.getSession(false), getUsers());
+
+        if (currentUser != null) {
+            req.setAttribute("currentUserId", currentUser.getId());
+        }
+
+        String feedType = req.getParameter("type") != null ? req.getParameter("type") : "recommandations";
+        req.setAttribute("feedType", feedType);
+        req.getRequestDispatcher("/vues/feeds.jsp").forward(req, resp);
     }
 
     @Override
@@ -80,23 +116,6 @@ public class PostServlet extends HttpServlet {
             }
             default -> resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
-    }
-
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-        req.setCharacterEncoding("UTF-8");
-        resp.setContentType("text/html; charset=UTF-8");
-
-        User currentUser = sessionService.getCurrentUser(req.getSession(false), getUsers());
-
-        if (currentUser != null) {
-            req.setAttribute("currentUserId", currentUser.getId());
-        }
-
-        String feedType = req.getParameter("type") != null ? req.getParameter("type") : "recommandations";
-        req.setAttribute("feedType", feedType);
-        req.getRequestDispatcher("/vues/feeds.jsp").forward(req, resp);
     }
 
     private List<User> getUsers() {
