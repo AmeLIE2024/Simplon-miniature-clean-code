@@ -1,10 +1,8 @@
 package fr.simplon.infrastructure.strategies.logs;
 
-import fr.simplon.domain.gateway.LogStrategy;
+import fr.simplon.domain.gateway.services.LogStrategy;
 
 public class LogStrategyImpl implements LogStrategy {
-
-
 
     @Override
     public void logMessage(String message) {

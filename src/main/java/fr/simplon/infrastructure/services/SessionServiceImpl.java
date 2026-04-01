@@ -2,7 +2,7 @@ package fr.simplon.infrastructure.services;
 
 import java.util.List;
 
-import fr.simplon.domain.gateway.SessionService;
+import fr.simplon.domain.gateway.services.SessionService;
 import fr.simplon.domain.models.User;
 import fr.simplon.domain.repository.UserRepositoryInterface;
 import jakarta.servlet.http.HttpSession;
@@ -24,7 +24,7 @@ public class SessionServiceImpl implements SessionService {
         if (session != null) {
             return (String) session.getAttribute("loggedUser");
         } else {
-            System.out.println("Session is null"); // TODO : Faire un log pour la
+            System.out.println("Session is null"); // TODO : Faire un log pour la session
             return null;
         }
     }
@@ -46,13 +46,19 @@ public class SessionServiceImpl implements SessionService {
         }
 
         return null;
-
     }
 
     @Override
-    public void checkExtensions() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'checkExtensions'");
+    public void createSession(HttpSession session, String username) {
+        session.setAttribute("loggedUser", username);
+        session.setMaxInactiveInterval(60 * 60);
+    }
+
+    @Override
+    public void invalidateSession(HttpSession session) {
+        if (session != null) {
+            session.invalidate();
+        }
     }
 
 }

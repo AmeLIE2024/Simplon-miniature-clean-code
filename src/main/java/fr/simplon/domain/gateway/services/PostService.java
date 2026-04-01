@@ -1,4 +1,4 @@
-package fr.simplon.domain.gateway;
+package fr.simplon.domain.gateway.services;
 
 import java.util.List;
 import fr.simplon.domain.models.User;

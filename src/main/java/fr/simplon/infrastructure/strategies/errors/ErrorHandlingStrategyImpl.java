@@ -1,6 +1,6 @@
 package fr.simplon.infrastructure.strategies.errors;
 
-import fr.simplon.domain.gateway.ErrorHandlingStrategy;
+import fr.simplon.domain.gateway.strategy.ErrorHandlingStrategy;
 
 public class ErrorHandlingStrategyImpl implements ErrorHandlingStrategy {
 
