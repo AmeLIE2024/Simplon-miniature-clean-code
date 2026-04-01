@@ -35,7 +35,7 @@ public class ServiceLocator {
         return loginUseCase;
     }
 
-    public RegisterUseCase gRegisterUseCase() {
+    public RegisterUseCase getRegisterUseCase() {
         return registerUseCase;
     }
 

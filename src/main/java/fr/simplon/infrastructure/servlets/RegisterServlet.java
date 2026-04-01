@@ -7,10 +7,12 @@ import fr.simplon.domain.gateway.services.AuthentificationService;
 import fr.simplon.domain.models.User;
 import fr.simplon.infrastructure.config.ServiceLocator;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+@WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
 
     private RegisterUseCase registerUseCase;
@@ -19,7 +21,7 @@ public class RegisterServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        this.registerUseCase = ServiceLocator.getInstance().gRegisterUseCase();
+        this.registerUseCase = ServiceLocator.getInstance().getRegisterUseCase();
     }
 
     @Override

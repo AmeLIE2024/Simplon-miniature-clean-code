@@ -8,11 +8,13 @@ import fr.simplon.domain.gateway.services.SessionService;
 import fr.simplon.domain.models.User;
 import fr.simplon.infrastructure.config.ServiceLocator;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+@WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 
     private SessionService sessionService;

@@ -1,11 +1,12 @@
 package fr.simplon.infrastructure.servlets;
 
-import fr.simplon.domain.gateway.FileStorageService;
-import fr.simplon.domain.gateway.PostService;
-import fr.simplon.domain.gateway.SessionService;
+import fr.simplon.domain.gateway.services.FileStorageService;
+import fr.simplon.domain.gateway.services.PostService;
+import fr.simplon.domain.gateway.services.SessionService;
 import fr.simplon.domain.models.AttachmentType;
 import fr.simplon.domain.models.User;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,15 +15,15 @@ import jakarta.servlet.http.Part;
 import java.io.IOException;
 import java.util.List;
 
+@WebServlet("/feeds")
 public class PostServlet extends HttpServlet {
-
 
     private final SessionService sessionService;
     private final FileStorageService fileStorageService;
     private final PostService postService;
 
     public PostServlet(SessionService sessionService,
-                       FileStorageService fileStorageService, PostService postService) {
+            FileStorageService fileStorageService, PostService postService) {
 
         this.sessionService = sessionService;
         this.fileStorageService = fileStorageService;
