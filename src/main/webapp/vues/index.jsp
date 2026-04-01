@@ -212,7 +212,7 @@
 <div class="orb"></div>
 
 <nav>
-  <a class="nav-logo" href="${pageContext.request.contextPath}/vues/feeds">Miniature</a>
+  <a class="nav-logo" href="${pageContext.request.contextPath}/feeds">Miniature</a>
   <div class="nav-links">
     <%
       HttpSession currentSession = request.getSession(false);

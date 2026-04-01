@@ -66,6 +66,6 @@ public class TomcatServiceImpl implements TomcatService {
         File classFolder = new File("build/classes/java/main");
         WebResourceRoot resourceRoot = new StandardRoot(ctx);
         resourceRoot.addPreResources(
-                new DirResourceSet(resourceRoot, "/WEB-INF/classes", classFolder.getAbsolutePath(), "/vues/"));
+                new DirResourceSet(resourceRoot, "/WEB-INF/classes", classFolder.getAbsolutePath(), "/"));
     }
 }
