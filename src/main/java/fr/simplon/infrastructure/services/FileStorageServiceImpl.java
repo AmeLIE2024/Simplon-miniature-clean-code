@@ -16,10 +16,9 @@ public class FileStorageServiceImpl implements FileStorageService {
     private final String contextPath;
     private PostService postService;
 
-    public FileStorageServiceImpl(String uploadDir, String contextPath, PostService postService) {
+    public FileStorageServiceImpl(String uploadDir, String contextPath) {
         this.uploadDir = uploadDir;
         this.contextPath = contextPath;
-        this.postService = postService;
     }
 
     @Override

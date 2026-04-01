@@ -5,6 +5,7 @@ import fr.simplon.domain.gateway.services.PostService;
 import fr.simplon.domain.gateway.services.SessionService;
 import fr.simplon.domain.models.AttachmentType;
 import fr.simplon.domain.models.User;
+import fr.simplon.infrastructure.config.AppConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -18,29 +19,18 @@ import java.util.List;
 @WebServlet("/feeds")
 public class PostServlet extends HttpServlet {
 
-    private final SessionService sessionService;
-    private final FileStorageService fileStorageService;
-    private final PostService postService;
-
-    public PostServlet(SessionService sessionService,
-            FileStorageService fileStorageService, PostService postService) {
-
-        this.sessionService = sessionService;
-        this.fileStorageService = fileStorageService;
-        this.postService = postService;
-    }
+    private SessionService sessionService;
+    private FileStorageService fileStorageService;
+    private PostService postService;
 
     @Override
-    public void init() throws ServletException {
-        super.init();
+    public void init() {
 
-        if (sessionService == null) {
-            throw new ServletException("[PostServlet] sessionService non injecté");
-        }
-        if (fileStorageService == null) {
-            throw new ServletException("[PostServlet] fileStorageService non injecté");
-        }
-        System.out.println("[PostServlet] init() OK - toutes les dépendances sont injectées");
+        this.sessionService = AppConfig.getSessionService();
+        this.fileStorageService = fileStorageService;
+        this.postService = AppConfig.getPostService();
+
+        System.out.println("[PostServlet] init OK");
     }
 
     @Override

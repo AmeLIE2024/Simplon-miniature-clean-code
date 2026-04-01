@@ -2,10 +2,13 @@ package fr.simplon.infrastructure.servlets;
 
 import java.io.IOException;
 
+import fr.simplon.application.usecase.LoginUseCase;
 import fr.simplon.application.usecase.RegisterUseCase;
 import fr.simplon.domain.gateway.services.AuthentificationService;
 import fr.simplon.domain.models.User;
-import fr.simplon.infrastructure.config.ServiceLocator;
+import fr.simplon.infrastructure.config.AppConfig;
+import fr.simplon.infrastructure.repository.UserRepository;
+import fr.simplon.infrastructure.services.authentification.AuthentificationServiceImpl;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -17,11 +20,15 @@ public class RegisterServlet extends HttpServlet {
 
     private RegisterUseCase registerUseCase;
     private AuthentificationService authService;
+    private UserRepository userRepository;
 
     @Override
     public void init() throws ServletException {
-        super.init();
-        this.registerUseCase = ServiceLocator.getInstance().getRegisterUseCase();
+        this.userRepository = AppConfig.getUserRepository();
+        LoginUseCase loginUseCase = new LoginUseCase(userRepository);
+        RegisterUseCase registerUseCase = new RegisterUseCase(userRepository);
+
+        authService = new AuthentificationServiceImpl(userRepository, loginUseCase, registerUseCase);
     }
 
     @Override

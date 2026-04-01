@@ -5,7 +5,6 @@ import fr.simplon.application.usecase.RegisterUseCase;
 import fr.simplon.domain.gateway.services.AuthentificationService;
 import fr.simplon.domain.models.User;
 import fr.simplon.domain.repository.UserRepositoryInterface;
-import fr.simplon.infrastructure.repository.UserRepository;
 
 public class AuthentificationServiceImpl implements AuthentificationService {
 
@@ -15,7 +14,7 @@ public class AuthentificationServiceImpl implements AuthentificationService {
 
     public AuthentificationServiceImpl(UserRepositoryInterface userRepository, LoginUseCase loginUseCase,
             RegisterUseCase registerUseCase) {
-        this.userRepository = new UserRepository();
+        this.userRepository = userRepository;
         this.loginUseCase = loginUseCase;
         this.registerUseCase = registerUseCase;
     }
