@@ -2,9 +2,9 @@ package fr.simplon.infrastructure.services;
 
 import java.util.List;
 
-import fr.simplon.domain.gateway.services.SessionService;
 import fr.simplon.domain.models.User;
 import fr.simplon.domain.repository.UserRepositoryInterface;
+import fr.simplon.domain.services.SessionService;
 import jakarta.servlet.http.HttpSession;
 
 public class SessionServiceImpl implements SessionService {

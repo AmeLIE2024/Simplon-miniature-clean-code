@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
-import fr.simplon.domain.gateway.services.FileStorageService;
+import fr.simplon.domain.services.FileStorageService;
 
 public class FileStorageServiceImpl implements FileStorageService {
 

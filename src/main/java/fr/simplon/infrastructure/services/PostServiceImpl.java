@@ -1,4 +1,4 @@
-package fr.simplon.infrastructure.services.post;
+package fr.simplon.infrastructure.services;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -7,12 +7,12 @@ import java.util.Set;
 
 import fr.simplon.domain.models.Post;
 import fr.simplon.domain.models.User;
-import fr.simplon.domain.gateway.services.FileStorageService;
-import fr.simplon.domain.gateway.services.PostService;
 import fr.simplon.domain.models.AttachmentType;
 import fr.simplon.domain.models.Comment;
 import fr.simplon.domain.models.ImageExtension;
 import fr.simplon.domain.models.VideoExtension;
+import fr.simplon.domain.services.FileStorageService;
+import fr.simplon.domain.services.PostService;
 import fr.simplon.infrastructure.repository.PostRepository;
 
 public class PostServiceImpl implements PostService {

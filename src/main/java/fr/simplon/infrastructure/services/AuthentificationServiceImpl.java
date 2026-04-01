@@ -1,10 +1,10 @@
-package fr.simplon.infrastructure.services.authentification;
+package fr.simplon.infrastructure.services;
 
 import fr.simplon.application.usecase.LoginUseCase;
 import fr.simplon.application.usecase.RegisterUseCase;
-import fr.simplon.domain.gateway.services.AuthentificationService;
 import fr.simplon.domain.models.User;
 import fr.simplon.domain.repository.UserRepositoryInterface;
+import fr.simplon.domain.services.AuthentificationService;
 
 public class AuthentificationServiceImpl implements AuthentificationService {
 

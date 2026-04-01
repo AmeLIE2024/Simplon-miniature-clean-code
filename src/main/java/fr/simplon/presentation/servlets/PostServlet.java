@@ -1,10 +1,10 @@
-package fr.simplon.infrastructure.servlets;
+package fr.simplon.presentation.servlets;
 
-import fr.simplon.domain.gateway.services.FileStorageService;
-import fr.simplon.domain.gateway.services.PostService;
-import fr.simplon.domain.gateway.services.SessionService;
 import fr.simplon.domain.models.AttachmentType;
 import fr.simplon.domain.models.User;
+import fr.simplon.domain.services.FileStorageService;
+import fr.simplon.domain.services.PostService;
+import fr.simplon.domain.services.SessionService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -20,39 +20,59 @@ public class PostServlet extends HttpServlet {
     private PostService postService;
 
     @Override
-    public void init() {
+    public void init() throws ServletException {
 
         var context = getServletContext();
 
-        this.sessionService = (SessionService) context.getAttribute("sessionService");
-        this.fileStorageService = (FileStorageService) context.getAttribute("fileStorageService");
-        this.postService = (PostService) context.getAttribute("postService");
+        try {
+            Object ss = context.getAttribute("sessionService");
+            Object fs = context.getAttribute("fileStorageService");
+            Object ps = context.getAttribute("postService");
 
-        if (sessionService == null || fileStorageService == null || postService == null) {
-            throw new IllegalStateException("❌ Dépendances non initialisées dans le context");
+            if (!(ss instanceof SessionService)) {
+                throw new IllegalStateException("sessionService invalide ou non initialisé");
+            }
+            if (!(fs instanceof FileStorageService)) {
+                throw new IllegalStateException("fileStorageService invalide ou non initialisé");
+            }
+            if (!(ps instanceof PostService)) {
+                throw new IllegalStateException("postService invalide ou non initialisé");
+            }
+
+            this.sessionService = (SessionService) ss;
+            this.fileStorageService = (FileStorageService) fs;
+            this.postService = (PostService) ps;
+
+            System.out.println("[PostServlet] init OK");
+
+        } catch (ClassCastException e) {
+            throw new ServletException(
+                    "Problème de ClassLoader (doublon d'interface ou dépendance)", e);
         }
-
-        System.out.println("[PostServlet] init OK");
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        if (!sessionService.isUserLoggedIn(req.getSession(false))) {
+        HttpSession session = req.getSession(false);
+
+        if (!sessionService.isUserLoggedIn(session)) {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
 
-        User currentUser = sessionService.getCurrentUser(req.getSession(false), getUsers());
+        List<User> users = (List<User>) getServletContext().getAttribute("users");
+
+        User currentUser = sessionService.getCurrentUser(session, users);
 
         if (currentUser != null) {
             req.setAttribute("currentUserId", currentUser.getId());
         }
 
-        String feedType = req.getParameter("type") != null
-                ? req.getParameter("type")
-                : "recommandations";
+        String feedType = req.getParameter("type");
+        if (feedType == null)
+            feedType = "recommandations";
 
         req.setAttribute("feedType", feedType);
         req.getRequestDispatcher("/vues/feeds.jsp").forward(req, resp);
@@ -62,12 +82,16 @@ public class PostServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        if (!sessionService.isUserLoggedIn(req.getSession(false))) {
+        HttpSession session = req.getSession(false);
+
+        if (!sessionService.isUserLoggedIn(session)) {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
 
-        User owner = sessionService.getCurrentUser(req.getSession(false), getUsers());
+        List<User> users = (List<User>) getServletContext().getAttribute("users");
+        User owner = sessionService.getCurrentUser(session, users);
+
         String action = req.getParameter("action");
 
         if (action == null) {
@@ -95,11 +119,11 @@ public class PostServlet extends HttpServlet {
                 String externalUrl = req.getParameter("externalUrl");
 
                 String mediaUrl = null;
-                AttachmentType attachmentType = AttachmentType.NONE;
+                AttachmentType type = AttachmentType.NONE;
 
-                if (externalUrl != null && !externalUrl.isBlank() && externalUrl.startsWith("https://")) {
+                if (externalUrl != null && externalUrl.startsWith("https://")) {
                     mediaUrl = externalUrl;
-                    attachmentType = AttachmentType.EXTERNAL;
+                    type = AttachmentType.EXTERNAL;
                 }
 
                 Part filePart = req.getPart("mediaFile");
@@ -107,9 +131,8 @@ public class PostServlet extends HttpServlet {
                 if (filePart != null && filePart.getSize() > 0) {
 
                     String fileName = filePart.getSubmittedFileName();
-                    String extension = getExtension(fileName);
+                    String extension = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
 
-                    // ✅ validation ici (responsabilité métier)
                     if (!postService.checkExtension(extension)) {
                         resp.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
                         return;
@@ -119,23 +142,13 @@ public class PostServlet extends HttpServlet {
                             fileName,
                             filePart.getInputStream());
 
-                    attachmentType = AttachmentType.fromExtension(fileName);
+                    type = AttachmentType.fromExtension(fileName);
                 }
 
-                postService.createPost(content, mediaUrl, owner, attachmentType);
+                postService.createPost(content, mediaUrl, owner, type);
             }
 
             default -> resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
-    }
-
-    private String getExtension(String fileName) {
-        if (fileName == null || !fileName.contains("."))
-            return "";
-        return fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
-    }
-
-    private List<User> getUsers() {
-        return (List<User>) getServletContext().getAttribute("users");
     }
 }

@@ -1,19 +1,17 @@
-package fr.simplon.infrastructure.services.tomcat;
+package fr.simplon.infrastructure.services;
 
 import java.io.File;
 
-import fr.simplon.domain.gateway.services.FileStorageService;
-import fr.simplon.domain.gateway.services.PostService;
-import fr.simplon.domain.gateway.services.SessionService;
-import fr.simplon.domain.gateway.services.TomcatService;
-import fr.simplon.domain.gateway.strategy.ErrorHandlingStrategy;
+import fr.simplon.domain.exception.LogStrategyImpl;
+import fr.simplon.domain.services.FileStorageService;
+import fr.simplon.domain.services.PostService;
+import fr.simplon.domain.services.SessionService;
+import fr.simplon.domain.services.TomcatService;
+import fr.simplon.domain.strategy.ErrorHandlingStrategy;
 import fr.simplon.infrastructure.repository.PostRepository;
 import fr.simplon.infrastructure.repository.UserRepository;
-import fr.simplon.infrastructure.services.FileStorageServiceImpl;
-import fr.simplon.infrastructure.services.SessionServiceImpl;
-import fr.simplon.infrastructure.services.post.PostServiceImpl;
-import fr.simplon.infrastructure.servlets.PostServlet;
-import fr.simplon.infrastructure.strategies.logs.LogStrategyImpl;
+import fr.simplon.presentation.servlets.PostServlet;
+
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.WebResourceRoot;

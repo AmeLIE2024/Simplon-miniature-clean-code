@@ -1,6 +1,6 @@
-package fr.simplon.infrastructure.strategies.logs;
+package fr.simplon.domain.exception;
 
-import fr.simplon.domain.gateway.services.LogStrategy;
+import fr.simplon.domain.strategy.LogStrategy;
 
 public class LogStrategyImpl implements LogStrategy {
 

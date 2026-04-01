@@ -1,9 +1,9 @@
 package fr.simplon;
 
-import fr.simplon.domain.gateway.services.TomcatService;
-import fr.simplon.infrastructure.services.tomcat.TomcatServiceImpl;
-import fr.simplon.infrastructure.strategies.errors.ErrorHandlingStrategyImpl;
-import fr.simplon.infrastructure.strategies.logs.LogStrategyImpl;
+import fr.simplon.domain.exception.ErrorHandlingStrategyImpl;
+import fr.simplon.domain.exception.LogStrategyImpl;
+import fr.simplon.domain.services.TomcatService;
+import fr.simplon.infrastructure.services.TomcatServiceImpl;
 
 public class App {
 

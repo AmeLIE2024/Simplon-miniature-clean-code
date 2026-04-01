@@ -1,4 +1,4 @@
-package fr.simplon.domain.gateway.strategy;
+package fr.simplon.domain.strategy;
 
 public interface ErrorHandlingStrategy {
 

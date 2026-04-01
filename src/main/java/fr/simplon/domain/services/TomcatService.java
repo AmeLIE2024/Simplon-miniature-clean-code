@@ -1,4 +1,4 @@
-package fr.simplon.domain.gateway.services;
+package fr.simplon.domain.services;
 
 import org.apache.catalina.startup.Tomcat;
 

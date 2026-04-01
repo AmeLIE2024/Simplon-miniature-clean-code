@@ -1,4 +1,4 @@
-package fr.simplon.domain.gateway.services;
+package fr.simplon.domain.services;
 
 import java.io.IOException;
 import java.io.InputStream;

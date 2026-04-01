@@ -1,4 +1,4 @@
-package fr.simplon.domain.gateway.services;
+package fr.simplon.domain.services;
 
 import java.util.List;
 import fr.simplon.domain.models.User;
@@ -18,7 +18,5 @@ public interface PostService {
     void addComment(long postId, User author, String content);
 
     void followUser(long targetUserId, User currentUser);
-
-
 
 }

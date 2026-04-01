@@ -1,4 +1,4 @@
-package fr.simplon.domain.gateway.services;
+package fr.simplon.domain.strategy;
 
 public interface LogStrategy {
     public void logMessage(String message);
