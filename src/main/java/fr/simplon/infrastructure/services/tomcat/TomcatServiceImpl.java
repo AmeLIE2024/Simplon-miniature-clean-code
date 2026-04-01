@@ -3,6 +3,15 @@ package fr.simplon.infrastructure.services.tomcat;
 import java.io.File;
 
 import fr.simplon.domain.gateway.ErrorHandlingStrategy;
+import fr.simplon.domain.gateway.FileStorageService;
+import fr.simplon.domain.gateway.PostService;
+import fr.simplon.domain.gateway.SessionService;
+import fr.simplon.infrastructure.controllers.PostController;
+import fr.simplon.infrastructure.repository.PostRepository;
+import fr.simplon.infrastructure.services.FileStorageServiceImpl;
+import fr.simplon.infrastructure.services.SessionServiceImpl;
+import fr.simplon.infrastructure.services.post.PostServiceImpl;
+import fr.simplon.infrastructure.servlets.PostServlet;
 import fr.simplon.infrastructure.strategies.logs.LogStrategyImpl;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
@@ -57,6 +66,18 @@ public class TomcatServiceImpl implements TomcatService {
 
         this.ctx = tomcat.addWebapp("", publicFolder.getAbsolutePath());
         this.ctx.setReloadable(true);
+
+        PostService postService = new PostServiceImpl(new PostRepository());
+        SessionService sessionService = new SessionServiceImpl();
+        FileStorageService fileStorageService = new FileStorageServiceImpl(
+                publicFolder.getAbsolutePath() + "/uploads",
+                "", postService);
+        PostController postController = new PostController(postService);
+
+        PostServlet postServlet = new PostServlet(postController, sessionService, fileStorageService);
+
+        Tomcat.addServlet(ctx, "postServlet", postServlet);
+        ctx.addServletMappingDecoded("/feeds", "postServlet");
     }
 
     @Override
@@ -64,8 +85,11 @@ public class TomcatServiceImpl implements TomcatService {
         getContext(tomcat);
 
         File classFolder = new File("build/classes/java/main");
+        verifyPublicFolderExist(classFolder);
+
         WebResourceRoot resourceRoot = new StandardRoot(ctx);
         resourceRoot.addPreResources(
                 new DirResourceSet(resourceRoot, "/WEB-INF/classes", classFolder.getAbsolutePath(), "/"));
+        ctx.setResources(resourceRoot);
     }
 }
