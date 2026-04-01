@@ -1,10 +1,10 @@
 package fr.simplon.infrastructure.servlets;
 
 import fr.simplon.domain.gateway.FileStorageService;
+import fr.simplon.domain.gateway.PostService;
 import fr.simplon.domain.gateway.SessionService;
 import fr.simplon.domain.models.AttachmentType;
 import fr.simplon.domain.models.User;
-import fr.simplon.infrastructure.controllers.PostController;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,24 +16,23 @@ import java.util.List;
 
 public class PostServlet extends HttpServlet {
 
-    private final PostController postController;
+
     private final SessionService sessionService;
     private final FileStorageService fileStorageService;
+    private final PostService postService;
 
-    public PostServlet(PostController postController, SessionService sessionService,
-            FileStorageService fileStorageService) {
-        this.postController = postController;
+    public PostServlet(SessionService sessionService,
+                       FileStorageService fileStorageService, PostService postService) {
+
         this.sessionService = sessionService;
         this.fileStorageService = fileStorageService;
+        this.postService = postService;
     }
 
     @Override
     public void init() throws ServletException {
         super.init();
 
-        if (postController == null) {
-            throw new ServletException("[PostServlet] postController non injecté");
-        }
         if (sessionService == null) {
             throw new ServletException("[PostServlet] sessionService non injecté");
         }
@@ -85,12 +84,14 @@ public class PostServlet extends HttpServlet {
         }
 
         switch (action) {
-            case "like" -> postController.handleLike(
-                    Long.parseLong(req.getParameter("postId")), owner);
-            case "comment" -> postController.handleNewComment(
+            case "like" -> postService.toggleLike(
                     Long.parseLong(req.getParameter("postId")),
-                    req.getParameter("comment"), owner);
-            case "follow" -> postController.handleFollowRequest(
+                    Long.parseLong(req.getParameter("userId")));
+            case "comment" -> postService.addComment(
+                    Long.parseLong(req.getParameter("postId")),
+                    owner,
+                    req.getParameter("comment"));
+            case "follow" -> postService.followUser(
                     Long.parseLong(req.getParameter("targetUserId")), owner);
             case "new" -> {
                 String content = req.getParameter("content");
@@ -112,7 +113,7 @@ public class PostServlet extends HttpServlet {
                             filePart.getSubmittedFileName());
                 }
 
-                postController.handleNewPost(content, mediaUrl, attachmentType, owner);
+                postService.createPost(content, mediaUrl, owner, attachmentType);
             }
             default -> resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }

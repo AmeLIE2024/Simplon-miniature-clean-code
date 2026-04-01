@@ -6,7 +6,6 @@ import fr.simplon.domain.gateway.ErrorHandlingStrategy;
 import fr.simplon.domain.gateway.FileStorageService;
 import fr.simplon.domain.gateway.PostService;
 import fr.simplon.domain.gateway.SessionService;
-import fr.simplon.infrastructure.controllers.PostController;
 import fr.simplon.infrastructure.repository.PostRepository;
 import fr.simplon.infrastructure.services.FileStorageServiceImpl;
 import fr.simplon.infrastructure.services.SessionServiceImpl;
@@ -74,7 +73,7 @@ public class TomcatServiceImpl implements TomcatService {
                 "", postService);
         PostController postController = new PostController(postService);
 
-        PostServlet postServlet = new PostServlet(postController, sessionService, fileStorageService);
+        PostServlet postServlet = new PostServlet(postController, sessionService, fileStorageService, postService);
 
         Tomcat.addServlet(ctx, "postServlet", postServlet);
         ctx.addServletMappingDecoded("/feeds", "postServlet");

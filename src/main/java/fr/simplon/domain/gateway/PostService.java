@@ -19,4 +19,6 @@ public interface PostService {
 
     void followUser(long targetUserId, User currentUser);
 
+
+
 }

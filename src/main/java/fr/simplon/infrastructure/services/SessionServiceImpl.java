@@ -31,6 +31,7 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     public boolean isUserLoggedIn(HttpSession session) {
+
         return session != null && getLoggedUsername(session) != null;
     }
 
