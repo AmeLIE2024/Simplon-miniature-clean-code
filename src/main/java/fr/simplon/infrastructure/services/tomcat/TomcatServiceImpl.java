@@ -2,10 +2,6 @@ package fr.simplon.infrastructure.services.tomcat;
 
 import java.io.File;
 
-import fr.simplon.domain.gateway.ErrorHandlingStrategy;
-import fr.simplon.domain.gateway.FileStorageService;
-import fr.simplon.domain.gateway.PostService;
-import fr.simplon.domain.gateway.SessionService;
 import fr.simplon.infrastructure.controllers.PostController;
 import fr.simplon.infrastructure.repository.PostRepository;
 import fr.simplon.infrastructure.services.FileStorageServiceImpl;
@@ -20,7 +16,11 @@ import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.webresources.DirResourceSet;
 import org.apache.catalina.webresources.StandardRoot;
 
-import fr.simplon.domain.gateway.TomcatService;
+import fr.simplon.domain.gateway.services.FileStorageService;
+import fr.simplon.domain.gateway.services.PostService;
+import fr.simplon.domain.gateway.services.SessionService;
+import fr.simplon.domain.gateway.services.TomcatService;
+import fr.simplon.domain.gateway.strategy.ErrorHandlingStrategy;
 
 public class TomcatServiceImpl implements TomcatService {
 

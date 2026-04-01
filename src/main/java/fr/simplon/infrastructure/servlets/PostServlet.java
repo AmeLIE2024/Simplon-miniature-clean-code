@@ -1,7 +1,7 @@
 package fr.simplon.infrastructure.servlets;
 
-import fr.simplon.domain.gateway.FileStorageService;
-import fr.simplon.domain.gateway.SessionService;
+import fr.simplon.domain.gateway.services.FileStorageService;
+import fr.simplon.domain.gateway.services.SessionService;
 import fr.simplon.domain.models.AttachmentType;
 import fr.simplon.domain.models.User;
 import fr.simplon.infrastructure.controllers.PostController;

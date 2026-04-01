@@ -1,18 +1,56 @@
 package fr.simplon.infrastructure.servlets;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
 
+import fr.simplon.application.usecase.LoginUseCase;
+import fr.simplon.domain.gateway.services.AuthentificationService;
+import fr.simplon.domain.gateway.services.SessionService;
 import fr.simplon.domain.models.User;
+import fr.simplon.infrastructure.config.ServiceLocator;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 public class LoginServlet extends HttpServlet {
 
-    private List<User> userList = new ArrayList<>();
+    private SessionService sessionService;
+    private AuthentificationService authService;
+    private LoginUseCase loginUseCase;
 
     @Override
-    public void init() {
+    public void init() throws ServletException {
+        super.init();
+        this.loginUseCase = ServiceLocator.getInstance().getLoginUseCase();
+    }
 
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        if (sessionService.isUserLoggedIn(req.getSession(false))) {
+            resp.sendRedirect(req.getContextPath() + "/feeds");
+            return;
+        }
+
+        req.getRequestDispatcher("/vues/login.jsp").forward(req, resp);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String username = req.getParameter("username");
+        String password = req.getParameter("password");
+
+        User user = authService.handleLogin(username, password);
+
+        if (user != null) {
+            HttpSession session = req.getSession(true);
+            session.setAttribute("username", user.getUsername());
+            resp.sendRedirect(req.getContextPath() + "/");
+        } else {
+            req.setAttribute("error", "Identifiants incorrects.");
+            req.getRequestDispatcher("/vues/login.jsp").forward(req, resp);
+        }
     }
 
 }

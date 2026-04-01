@@ -1,6 +1,6 @@
 package fr.simplon.infrastructure.controllers;
 
-import fr.simplon.domain.gateway.PostService;
+import fr.simplon.domain.gateway.services.PostService;
 import fr.simplon.domain.models.AttachmentType;
 import fr.simplon.domain.models.User;
 

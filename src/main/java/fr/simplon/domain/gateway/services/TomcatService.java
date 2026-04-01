@@ -1,6 +1,4 @@
-package fr.simplon.domain.gateway;
-
-import java.io.File;
+package fr.simplon.domain.gateway.services;
 
 import org.apache.catalina.startup.Tomcat;
 

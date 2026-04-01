@@ -1,7 +1,7 @@
 package fr.simplon;
 
-import fr.simplon.domain.gateway.TomcatService;
-import fr.simplon.infrastructure.services.TomcatServiceImpl;
+import fr.simplon.domain.gateway.services.TomcatService;
+import fr.simplon.infrastructure.services.tomcat.TomcatServiceImpl;
 import fr.simplon.infrastructure.strategies.errors.ErrorHandlingStrategyImpl;
 import fr.simplon.infrastructure.strategies.logs.LogStrategyImpl;
 
