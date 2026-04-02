@@ -28,7 +28,9 @@
     <a href="${pageContext.request.contextPath}/login">Se connecter</a>
     <a href="${pageContext.request.contextPath}/register">S'inscrire</a>
     <% } else { %>
-    <a href="${pageContext.request.contextPath}/logout" method="post" class="logout">Se déconnecter</a>
+    <form method="post" action="${pageContext.request.contextPath}/logout">
+      <button type="submit" class="logout">Se déconnecter</button>
+    </form>
     <% } %>
   </div>
 </nav>

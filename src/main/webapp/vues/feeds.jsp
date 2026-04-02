@@ -31,7 +31,12 @@
     <a class="nav-logo" href="${pageContext.request.contextPath}/feeds">Miniature</a>
     <ul class="nav-links">
         <li><a href="${pageContext.request.contextPath}/home">Accueil</a></li>
-        <li><a href="${pageContext.request.contextPath}/logout" class="logout">Se déconnecter</a></li>
+        <li>
+            <form method="post" action="${pageContext.request.contextPath}/logout">
+                <button type="submit" class="logout">Se déconnecter</button>
+            </form>
+        </li>
+
     </ul>
 </nav>
 

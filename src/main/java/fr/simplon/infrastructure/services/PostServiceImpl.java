@@ -18,7 +18,7 @@ import fr.simplon.infrastructure.repository.PostRepository;
 
 public class PostServiceImpl implements PostService {
 
- 
+
     private final PostRepositoryInterface postRepository;
     private final FileStorageService fileStorageService;
 

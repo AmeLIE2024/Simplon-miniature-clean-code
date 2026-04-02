@@ -18,6 +18,30 @@
             font-family: 'DM Sans', sans-serif;
             min-height: 100vh;
         }
+        .nav-links form {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links button.logout {
+            background: none;
+            border: 1px solid transparent;
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--danger);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: color 0.2s, background 0.2s, border-color 0.2s;
+        }
+
+        .nav-links button.logout:hover {
+            background: rgba(192,103,90,0.1);
+            border-color: var(--danger);
+        }
 
         body::before {
             content: '';
