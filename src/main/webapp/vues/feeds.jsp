@@ -114,26 +114,27 @@
 
                 <%
                     Long currentUserId = (Long) request.getAttribute("currentUserId");
-                    long uid = currentUserId != null ? currentUserId : -1L;
+                    long userId = currentUserId != null ? currentUserId : -1L;
                 %>
 
                 <footer>
                     <form method="post" action="<%= request.getContextPath() %>/feeds">
                         <input type="hidden" name="buttonLike" value="<%= post.getId() %>">
-                        <button type="submit" class="btn-like <%= postRepository.isLikedBy(uid) ? "liked" : "" %>">
-                            ❤ <span><%= postRepository.getLikeCount() %></span>
+                        <button type="submit" class="btn-like <%= post.isLikedBy(userId) ? "liked" : "" %>">
+                            ❤ <span><%= post.getLikeCount() %></span>
                         </button>
                     </form>
                 </footer>
 
                 <section class="comments-section">
                     <% List<Comment> comments = post.getComments(); %>
+                
                     <% if (comments != null && !comments.isEmpty()) { %>
                     <ul class="comments-list">
                         <% for (Comment comment : comments) { %>
                         <li>
                             <div class="comment-meta">
-                                <span class="comment-author">@ <%= comment.getAuthorUsername() %></span>
+                                <span class="comment-author">@<%= comment.getAuthorUsername() %></span>
                                 <%
                                     LocalDateTime createdAt = comment.getCreatedAt();
                                     if (createdAt != null) {
@@ -148,19 +149,20 @@
                         <% } %>
                     </ul>
                     <% } %>
-
-                    <form method="post" action="${pageContext.request.contextPath}/feeds"
-                          class="comment-form">
+                
+                    <form method="post" action="${pageContext.request.contextPath}/feeds" class="comment-form">
+                        <input type="hidden" name="action" value="comment">
                         <input type="hidden" name="postId" value="<%= post.getId() %>">
-
+                
                         <label for="comment-<%= post.getId() %>" class="sr-only">Commentaire</label>
                         <input type="text"
                                id="comment-<%= post.getId() %>"
-                               name="newComment"
+                               name="comment"
                                placeholder="Ajouter un commentaire..."
                                class="comment-input">
                         <button type="submit" class="btn-comment">Envoyer</button>
                     </form>
+        
                 </section>
 
             </article>

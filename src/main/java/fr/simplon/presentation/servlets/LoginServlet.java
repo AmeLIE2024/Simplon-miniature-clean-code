@@ -2,6 +2,7 @@ package fr.simplon.presentation.servlets;
 
 import java.io.IOException;
 
+import fr.simplon.application.usecase.LoginUseCase;
 import fr.simplon.domain.models.User;
 import fr.simplon.domain.services.AuthentificationService;
 import fr.simplon.domain.services.SessionService;
@@ -25,7 +26,7 @@ public class LoginServlet extends HttpServlet {
         this.authService = (AuthentificationService) ctx.getAttribute("authService");
 
         if (sessionService == null || authService == null) {
-            throw new ServletException("Services manquants — AppContextListener enregistré ?");
+            throw new ServletException("Services manquants");
         }
     }
 
@@ -51,7 +52,7 @@ public class LoginServlet extends HttpServlet {
 
         if (user != null) {
             HttpSession session = req.getSession(true);
-            session.setAttribute("username", user.getUsername());
+            sessionService.createSession(session, user.getUsername());
             resp.sendRedirect(req.getContextPath() + "/feeds");
         } else {
             req.setAttribute("error", "Identifiants incorrects.");

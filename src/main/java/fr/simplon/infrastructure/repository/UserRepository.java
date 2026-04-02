@@ -2,6 +2,7 @@ package fr.simplon.infrastructure.repository;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import fr.simplon.domain.models.User;
 import fr.simplon.domain.repository.UserRepositoryInterface;
 
@@ -23,19 +24,8 @@ public class UserRepository implements UserRepositoryInterface {
     }
 
     @Override
-    public User findById(Long userId) {
-        for (User user : userList) {
-            if (user.getId() == userId) {
-                return user;
-            }
-        }
-        return null;
-    }
-
-    @Override
     public List<User> findAll() {
         return userList;
-        //
     }
 
     @Override

@@ -76,6 +76,14 @@ public class Post {
         return likedByUserIds;
     }
 
+    public boolean isLikedBy(long userId) {
+        return likedByUserIds.contains(userId);
+    }
+
+    public int getLikeCount() {
+        return likedByUserIds.size();
+    }
+
     public List<Comment> getComments() {
         return comments;
     }

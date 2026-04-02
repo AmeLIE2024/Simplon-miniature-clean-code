@@ -2,6 +2,7 @@ package fr.simplon.presentation.listeners;
 
 import fr.simplon.application.usecase.LoginUseCase;
 import fr.simplon.application.usecase.RegisterUseCase;
+import fr.simplon.domain.models.User;
 import fr.simplon.domain.repository.UserRepositoryInterface;
 import fr.simplon.domain.services.AuthentificationService;
 import fr.simplon.domain.services.FileStorageService;
@@ -29,6 +30,9 @@ public class AppContextListener implements ServletContextListener {
         String contextPath = ctx.getContextPath();
 
         UserRepositoryInterface userRepository = new UserRepository();
+        userRepository.save(new User("admin", "admin"));
+        userRepository.save(new User("user", "password"));
+
         PostRepository postRepository = new PostRepository();
 
         LoginUseCase loginUseCase = new LoginUseCase(userRepository);

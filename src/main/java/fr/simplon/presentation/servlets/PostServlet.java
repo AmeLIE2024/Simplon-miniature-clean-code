@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.List;
 
 @WebServlet("/feeds")
-@MultipartConfig // nécessaire pour req.getPart()
+@MultipartConfig
 public class PostServlet extends HttpServlet {
 
     private SessionService sessionService;
@@ -25,16 +25,14 @@ public class PostServlet extends HttpServlet {
     public void init() throws ServletException {
         var context = getServletContext();
 
-        // On récupère les services depuis le contexte (injectés par un listener au
-        // démarrage)
-        // Si l'un d'eux est absent, on lève une exception claire au démarrage.
+        // on injecte les services par notre AppContexListener au démarrage
         this.sessionService = (SessionService) context.getAttribute("sessionService");
         this.fileStorageService = (FileStorageService) context.getAttribute("fileStorageService");
         this.postService = (PostService) context.getAttribute("postService");
 
         if (this.sessionService == null || this.fileStorageService == null || this.postService == null) {
             throw new ServletException(
-                    "Services non initialisés. Vérifiez que AppContextListener est enregistré.");
+                    "Services non initialisés.");
         }
     }
 
