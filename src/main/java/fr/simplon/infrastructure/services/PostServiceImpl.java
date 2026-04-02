@@ -11,14 +11,15 @@ import fr.simplon.domain.models.AttachmentType;
 import fr.simplon.domain.models.Comment;
 import fr.simplon.domain.models.ImageExtension;
 import fr.simplon.domain.models.VideoExtension;
+import fr.simplon.domain.repository.PostRepositoryInterface;
 import fr.simplon.domain.services.FileStorageService;
 import fr.simplon.domain.services.PostService;
 import fr.simplon.infrastructure.repository.PostRepository;
 
 public class PostServiceImpl implements PostService {
 
-    private List<Post> postList = new ArrayList<>();
-    private final PostRepository postRepository;
+ 
+    private final PostRepositoryInterface postRepository;
     private final FileStorageService fileStorageService;
 
     public PostServiceImpl(PostRepository postRepository,
@@ -63,9 +64,12 @@ public class PostServiceImpl implements PostService {
                 content,
                 mediaUrl,
                 attachmentType);
-        postList.add(post);
-        postList.sort(Comparator.comparing(Post::getCreatedAt).reversed());
         postRepository.save(post);
+    }
+
+    @Override
+    public List<Post> getAllPosts() {
+        return postRepository.findAllPosts();
     }
 
     @Override

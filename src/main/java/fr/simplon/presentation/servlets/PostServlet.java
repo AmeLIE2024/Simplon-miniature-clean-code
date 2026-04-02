@@ -1,6 +1,7 @@
 package fr.simplon.presentation.servlets;
 
 import fr.simplon.domain.models.AttachmentType;
+import fr.simplon.domain.models.Post;
 import fr.simplon.domain.models.User;
 import fr.simplon.domain.services.FileStorageService;
 import fr.simplon.domain.services.PostService;
@@ -59,6 +60,10 @@ public class PostServlet extends HttpServlet {
             feedType = "recommandations";
         }
 
+        List<Post> allPosts = postService.getAllPosts();
+        List<Post> postList = postService.getPostsByFeedType(feedType, currentUser, allPosts);
+
+        req.setAttribute("postList", postList);
         req.setAttribute("feedType", feedType);
         req.getRequestDispatcher("/vues/feeds.jsp").forward(req, resp);
     }
@@ -119,12 +124,13 @@ public class PostServlet extends HttpServlet {
 
             default -> resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Action inconnue");
         }
+        resp.sendRedirect(req.getContextPath() + "/feeds");
     }
 
     private void handleNewPost(HttpServletRequest req, HttpServletResponse resp, User owner)
             throws ServletException, IOException {
 
-        String content = req.getParameter("content");
+        String content = req.getParameter("newPost");
         if (content == null || content.isBlank()) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Contenu manquant");
             return;

@@ -13,6 +13,8 @@ public interface PostService {
 
     void createPost(String content, String mediaUrl, User owner, AttachmentType attachmentType);
 
+    List<Post> getAllPosts();
+
     void toggleLike(long postId, long userId);
 
     void addComment(long postId, User author, String content);

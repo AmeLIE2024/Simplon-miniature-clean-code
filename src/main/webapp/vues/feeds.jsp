@@ -9,7 +9,6 @@
 
 <%
     List<Post> postList = (List<Post>) request.getAttribute("postList");
-    PostRepositoryInterface postRepository = new PostRepository();
     String feedType = (String) request.getAttribute("feedType");
     if (feedType == null) feedType = "recommendations";
     java.time.format.DateTimeFormatter fmt =
@@ -41,6 +40,7 @@
     <section class="compose">
         <p class="compose-label">Nouveau post</p>
         <form method="post" action="${pageContext.request.contextPath}/feeds" enctype="multipart/form-data">
+            <input type="hidden" name="action" value="new">
             <textarea name="newPost" placeholder="Quoi de neuf ?"></textarea>
             <div class="media-options">
                 <label class="media-label" for="mediaFile">Fichier (image ou vidéo)</label>
@@ -119,7 +119,9 @@
 
                 <footer>
                     <form method="post" action="<%= request.getContextPath() %>/feeds">
-                        <input type="hidden" name="buttonLike" value="<%= post.getId() %>">
+                        <input type="hidden" name="action" value="like">
+                        <input type="hidden" name="postId" value="<%= post.getId() %>">
+                        <input type="hidden" name="userId" value="<%= userId %>">
                         <button type="submit" class="btn-like <%= post.isLikedBy(userId) ? "liked" : "" %>">
                             ❤ <span><%= post.getLikeCount() %></span>
                         </button>
