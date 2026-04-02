@@ -22,11 +22,11 @@ public class RegisterServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        UserRepositoryInterface userRepository = new UserRepository();
-        LoginUseCase loginUseCase = new LoginUseCase(userRepository);
-        RegisterUseCase registerUseCase = new RegisterUseCase(userRepository);
+        this.authService = (AuthentificationService) getServletContext().getAttribute("authService");
 
-        authService = new AuthentificationServiceImpl(userRepository, loginUseCase, registerUseCase);
+        if (authService == null) {
+            throw new ServletException("authService manquant — AppContextListener enregistré ?");
+        }
     }
 
     @Override
@@ -38,6 +38,7 @@ public class RegisterServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+
         String username = req.getParameter("username");
         String password = req.getParameter("password");
         String confirmPassword = req.getParameter("confirmPassword");

@@ -2,7 +2,7 @@ package fr.simplon.presentation.servlets;
 
 import java.io.IOException;
 
-import fr.simplon.infrastructure.services.SessionServiceImpl;
+import fr.simplon.domain.services.SessionService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -13,7 +13,16 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet("/home")
 public class HomeServlet extends HttpServlet {
 
-    private final SessionServiceImpl sessionService = new SessionServiceImpl();
+    private SessionService sessionService;
+
+    @Override
+    public void init() throws ServletException {
+        this.sessionService = (SessionService) getServletContext().getAttribute("sessionService");
+
+        if (sessionService == null) {
+            throw new ServletException("sessionService manquant — AppContextListener enregistré ?");
+        }
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -21,14 +30,12 @@ public class HomeServlet extends HttpServlet {
 
         HttpSession session = req.getSession(false);
 
-        boolean loggedUser = sessionService.isUserLoggedIn(session);
-
-        if (!loggedUser) {
-            resp.sendRedirect(req.getContextPath() + "/home");
+        if (!sessionService.isUserLoggedIn(session)) {
+            resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
 
-        req.setAttribute("loggedUser", session.getAttribute("loggedUser"));
+        req.setAttribute("loggedUser", session.getAttribute("username"));
         req.getRequestDispatcher("/index.jsp").forward(req, resp);
     }
 }

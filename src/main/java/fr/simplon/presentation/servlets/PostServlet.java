@@ -6,6 +6,7 @@ import fr.simplon.domain.services.FileStorageService;
 import fr.simplon.domain.services.PostService;
 import fr.simplon.domain.services.SessionService;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.util.List;
 
 @WebServlet("/feeds")
+@MultipartConfig // nécessaire pour req.getPart()
 public class PostServlet extends HttpServlet {
 
     private SessionService sessionService;
@@ -21,33 +23,18 @@ public class PostServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-
         var context = getServletContext();
 
-        try {
-            Object ss = context.getAttribute("sessionService");
-            Object fs = context.getAttribute("fileStorageService");
-            Object ps = context.getAttribute("postService");
+        // On récupère les services depuis le contexte (injectés par un listener au
+        // démarrage)
+        // Si l'un d'eux est absent, on lève une exception claire au démarrage.
+        this.sessionService = (SessionService) context.getAttribute("sessionService");
+        this.fileStorageService = (FileStorageService) context.getAttribute("fileStorageService");
+        this.postService = (PostService) context.getAttribute("postService");
 
-            if (!(ss instanceof SessionService)) {
-                throw new IllegalStateException("sessionService invalide ou non initialisé");
-            }
-            if (!(fs instanceof FileStorageService)) {
-                throw new IllegalStateException("fileStorageService invalide ou non initialisé");
-            }
-            if (!(ps instanceof PostService)) {
-                throw new IllegalStateException("postService invalide ou non initialisé");
-            }
-
-            this.sessionService = (SessionService) ss;
-            this.fileStorageService = (FileStorageService) fs;
-            this.postService = (PostService) ps;
-
-            System.out.println("[PostServlet] init OK");
-
-        } catch (ClassCastException e) {
+        if (this.sessionService == null || this.fileStorageService == null || this.postService == null) {
             throw new ServletException(
-                    "Problème de ClassLoader (doublon d'interface ou dépendance)", e);
+                    "Services non initialisés. Vérifiez que AppContextListener est enregistré.");
         }
     }
 
@@ -63,7 +50,6 @@ public class PostServlet extends HttpServlet {
         }
 
         List<User> users = (List<User>) getServletContext().getAttribute("users");
-
         User currentUser = sessionService.getCurrentUser(session, users);
 
         if (currentUser != null) {
@@ -71,8 +57,9 @@ public class PostServlet extends HttpServlet {
         }
 
         String feedType = req.getParameter("type");
-        if (feedType == null)
+        if (feedType == null) {
             feedType = "recommandations";
+        }
 
         req.setAttribute("feedType", feedType);
         req.getRequestDispatcher("/vues/feeds.jsp").forward(req, resp);
@@ -95,60 +82,97 @@ public class PostServlet extends HttpServlet {
         String action = req.getParameter("action");
 
         if (action == null) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Paramètre 'action' manquant");
             return;
         }
 
         switch (action) {
 
-            case "like" -> postService.toggleLike(
-                    Long.parseLong(req.getParameter("postId")),
-                    Long.parseLong(req.getParameter("userId")));
-
-            case "comment" -> postService.addComment(
-                    Long.parseLong(req.getParameter("postId")),
-                    owner,
-                    req.getParameter("comment"));
-
-            case "follow" -> postService.followUser(
-                    Long.parseLong(req.getParameter("targetUserId")),
-                    owner);
-
-            case "new" -> {
-                String content = req.getParameter("content");
-                String externalUrl = req.getParameter("externalUrl");
-
-                String mediaUrl = null;
-                AttachmentType type = AttachmentType.NONE;
-
-                if (externalUrl != null && externalUrl.startsWith("https://")) {
-                    mediaUrl = externalUrl;
-                    type = AttachmentType.EXTERNAL;
+            case "like" -> {
+                Long postId = parseLongParam(req.getParameter("postId"));
+                Long userId = parseLongParam(req.getParameter("userId"));
+                if (postId == null || userId == null) {
+                    resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Paramètres invalides");
+                    return;
                 }
-
-                Part filePart = req.getPart("mediaFile");
-
-                if (filePart != null && filePart.getSize() > 0) {
-
-                    String fileName = filePart.getSubmittedFileName();
-                    String extension = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
-
-                    if (!postService.checkExtension(extension)) {
-                        resp.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
-                        return;
-                    }
-
-                    mediaUrl = fileStorageService.saveFile(
-                            fileName,
-                            filePart.getInputStream());
-
-                    type = AttachmentType.fromExtension(fileName);
-                }
-
-                postService.createPost(content, mediaUrl, owner, type);
+                postService.toggleLike(postId, userId);
             }
 
-            default -> resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            case "comment" -> {
+                Long postId = parseLongParam(req.getParameter("postId"));
+                String comment = req.getParameter("comment");
+                if (postId == null || comment == null || comment.isBlank()) {
+                    resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Paramètres invalides");
+                    return;
+                }
+                postService.addComment(postId, owner, comment);
+            }
+
+            case "follow" -> {
+                Long targetUserId = parseLongParam(req.getParameter("targetUserId"));
+                if (targetUserId == null) {
+                    resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Paramètres invalides");
+                    return;
+                }
+                postService.followUser(targetUserId, owner);
+            }
+
+            case "new" -> handleNewPost(req, resp, owner);
+
+            default -> resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Action inconnue");
+        }
+    }
+
+    private void handleNewPost(HttpServletRequest req, HttpServletResponse resp, User owner)
+            throws ServletException, IOException {
+
+        String content = req.getParameter("content");
+        if (content == null || content.isBlank()) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Contenu manquant");
+            return;
+        }
+
+        String mediaUrl = null;
+        AttachmentType type = AttachmentType.NONE;
+
+        String externalUrl = req.getParameter("externalUrl");
+        if (externalUrl != null && !externalUrl.isBlank()) {
+            if (!externalUrl.startsWith("https://")) {
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "URL externe invalide (HTTPS requis)");
+                return;
+            }
+            mediaUrl = externalUrl;
+            type = AttachmentType.EXTERNAL;
+        }
+
+        Part filePart = req.getPart("mediaFile");
+        if (filePart != null && filePart.getSize() > 0) {
+            String fileName = filePart.getSubmittedFileName();
+            if (fileName == null || !fileName.contains(".")) {
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Nom de fichier invalide");
+                return;
+            }
+
+            String extension = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+            if (!postService.checkExtension(extension)) {
+                resp.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, "Extension non autorisée");
+                return;
+            }
+
+            mediaUrl = fileStorageService.saveFile(fileName, filePart.getInputStream());
+            type = AttachmentType.fromExtension(fileName);
+        }
+
+        postService.createPost(content, mediaUrl, owner, type);
+    }
+
+    private Long parseLongParam(String value) {
+        if (value == null || value.isBlank())
+            return null;
+        try {
+            return Long.parseLong(value);
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 }
